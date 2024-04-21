@@ -2,7 +2,7 @@ import typing
 
 from pydantic import BaseModel
 
-from .enums import TargetNameEnum
+from .enums import TargetNameType
 from .ValidatorABS import ValidatorABS
 from .ValidatorPydantic import ValidatorPydantic
 from .ValidatorMarshmallow import ValidatorMarshmallow
@@ -10,26 +10,55 @@ from .types import SchemaType
 from ..marshmallow import Schema
 
 
-def _validator_factory(schema: SchemaType, target: TargetNameEnum) -> ValidatorABS:
+def validator_factory(
+    *,
+    schema: SchemaType,
+    target: TargetNameType,
+    pass_data: typing.Optional[bool] = None,
+    docs: typing.Optional[bool] = None
+) -> ValidatorABS:
     if isinstance(schema, Schema):
-        return ValidatorMarshmallow(schema, target)
+        return ValidatorMarshmallow(schema, target, pass_data=pass_data, docs=docs)
     elif issubclass(schema, BaseModel):
-        return ValidatorPydantic(schema, target)
+        return ValidatorPydantic(schema, target, pass_data=pass_data, docs=docs)
     else:
         raise NotImplementedError()
 
 
-def body(schema: typing.Type[SchemaType]):
-    return _validator_factory(schema, TargetNameEnum.BODY)
+def body(
+    schema: typing.Type[SchemaType],
+    *,
+    pass_data: typing.Optional[bool] = None,
+    docs: typing.Optional[bool] = None
+):
+    return validator_factory(schema=schema, target=TargetNameType.BODY, pass_data=pass_data, docs=docs)
 
 
-def query(schema: typing.Type[SchemaType]):
-    return _validator_factory(schema, TargetNameEnum.QUERY)
+def query(
+    schema: typing.Type[SchemaType],
+    *,
+    pass_data: typing.Optional[bool] = None,
+    docs: typing.Optional[bool] = None
+):
+    return validator_factory(schema=schema, target=TargetNameType.QUERY, pass_data=pass_data, docs=docs)
 
 
-def params(schema: typing.Type[SchemaType]):
-    return _validator_factory(schema, TargetNameEnum.PARAMS)
+def params(
+    schema: typing.Type[SchemaType],
+    *,
+    pass_data: typing.Optional[bool] = None,
+    docs: typing.Optional[bool] = None
+):
+    return validator_factory(schema=schema, target=TargetNameType.PARAMS, pass_data=pass_data, docs=docs)
 
 
-def validate(schema: typing.Type[SchemaType], payload: dict):
-    return _validator_factory(schema, TargetNameEnum.UNION).validate(payload)
+def validate(
+    schema: typing.Type[SchemaType],
+    *,
+    target: TargetNameType = TargetNameType.UNION,
+    payload: dict,
+    pass_data: typing.Optional[bool] = None,
+    docs: typing.Optional[bool] = None
+):
+    return validator_factory(schema=schema, target=target, pass_data=pass_data, docs=docs).validate(payload)
+

@@ -1,7 +1,7 @@
 import typing
 
 from ..exceptions import BadRequestException, BaseApplicationException
-from .enums import TargetNameEnum
+from .enums import TargetNameType
 
 
 class SchemaValidationException(BadRequestException):
@@ -23,7 +23,7 @@ class SchemaValidationException(BadRequestException):
     message = 'Validation errors'
     errors: typing.List[SchemaValidationItemException]
 
-    def __init__(self, target: TargetNameEnum, errors):
+    def __init__(self, target: TargetNameType, errors):
         super().__init__()
         self.errors = errors
         self.target = str(target.value)
@@ -40,7 +40,7 @@ class NotRequestProvidedException(BadRequestException):
     code = 3
     target: str
 
-    def __init__(self, target: TargetNameEnum):
+    def __init__(self, target: TargetNameType):
         super().__init__()
         self.message = f'No request {target.name} provided'
         self.target = str(target.value)

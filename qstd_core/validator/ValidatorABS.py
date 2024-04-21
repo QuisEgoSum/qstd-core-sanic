@@ -6,7 +6,7 @@ from sanic.request import Request
 
 from .. import openapi
 from .types import SchemaType
-from .enums import TargetNameEnum
+from .enums import TargetNameType
 from .exceptions import SchemaValidationException
 
 
@@ -16,27 +16,27 @@ def format_error_message(message: str, field: str) -> str:
 
 class ValidatorABS(ABC):
     schema: typing.Type[SchemaType]
-    target_name: TargetNameEnum
+    target_name: TargetNameType
 
     def __init__(
         self,
         schema: typing.Type[SchemaType],
-        target_name: TargetNameEnum = TargetNameEnum.BODY,
+        target_name: TargetNameType = TargetNameType.BODY,
         pass_data: bool = True,
         docs: bool = True
     ):
         self.schema = schema
         self.target_name = target_name
-        self.schema_fields = list(self.schema.__fields__.keys()) if target_name == TargetNameEnum.PARAMS else []
+        self.schema_fields = list(self.schema.__fields__.keys()) if target_name == TargetNameType.PARAMS else []
         self.pass_data = pass_data
         self.docs = docs
 
     def get_target(self, request: Request, kwargs):
-        if self.target_name == TargetNameEnum.BODY:
+        if self.target_name == TargetNameType.BODY:
             return request.json or dict()
-        elif self.target_name == TargetNameEnum.QUERY:
+        elif self.target_name == TargetNameType.QUERY:
             return {k: v[0] for k, v in request.args.items()}
-        elif self.target_name == TargetNameEnum.PARAMS:
+        elif self.target_name == TargetNameType.PARAMS:
             params = dict()
             for name in self.schema_fields:
                 params[name] = kwargs[name]
