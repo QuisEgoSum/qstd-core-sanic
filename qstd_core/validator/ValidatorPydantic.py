@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ValidationError
 
+from . import TargetNameType
 from .ValidatorABS import ValidatorABS
 from .exceptions import SchemaValidationException
 
@@ -31,3 +32,6 @@ class ValidatorPydantic(ValidatorABS):
     @classmethod
     def format_error_message(cls, message: str, field_name: str) -> str:
         return message.format(field_name=field_name)
+
+    def get_schema_fields(self):
+        return list(self.schema.__fields__.keys()) if self.target_name == TargetNameType.PARAMS else []

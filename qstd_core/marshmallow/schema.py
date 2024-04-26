@@ -8,7 +8,6 @@ class Schema(DefaultSchema):
     def pagination(cls):
         class PaginationResponse(Schema):
             total = Integer(required=True, validate=validate.Range(min=0))
-            page_count = Integer(required=True, validate=validate.Range(min=0))
             data = List(fields.Nested(cls()), required=True)
         return PaginationResponse()
 

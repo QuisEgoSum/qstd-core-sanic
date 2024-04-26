@@ -14,8 +14,8 @@ def validator_factory(
     *,
     schema: SchemaType,
     target: TargetNameType,
-    pass_data: typing.Optional[bool] = None,
-    docs: typing.Optional[bool] = None
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
 ) -> ValidatorABS:
     if isinstance(schema, Schema):
         return ValidatorMarshmallow(schema, target, pass_data=pass_data, docs=docs)
@@ -28,8 +28,8 @@ def validator_factory(
 def body(
     schema: typing.Type[SchemaType],
     *,
-    pass_data: typing.Optional[bool] = None,
-    docs: typing.Optional[bool] = None
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
 ):
     return validator_factory(schema=schema, target=TargetNameType.BODY, pass_data=pass_data, docs=docs)
 
@@ -37,8 +37,8 @@ def body(
 def query(
     schema: typing.Type[SchemaType],
     *,
-    pass_data: typing.Optional[bool] = None,
-    docs: typing.Optional[bool] = None
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
 ):
     return validator_factory(schema=schema, target=TargetNameType.QUERY, pass_data=pass_data, docs=docs)
 
@@ -46,8 +46,8 @@ def query(
 def params(
     schema: typing.Type[SchemaType],
     *,
-    pass_data: typing.Optional[bool] = None,
-    docs: typing.Optional[bool] = None
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
 ):
     return validator_factory(schema=schema, target=TargetNameType.PARAMS, pass_data=pass_data, docs=docs)
 
@@ -57,8 +57,8 @@ def validate(
     *,
     target: TargetNameType = TargetNameType.UNION,
     payload: dict,
-    pass_data: typing.Optional[bool] = None,
-    docs: typing.Optional[bool] = None
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
 ):
     return validator_factory(schema=schema, target=target, pass_data=pass_data, docs=docs).validate(payload)
 

@@ -2,6 +2,7 @@ import typing
 
 from marshmallow import ValidationError, Schema
 
+from . import TargetNameType
 from .exceptions import SchemaValidationException
 from .ValidatorABS import ValidatorABS
 from ..logger import app_core_logger
@@ -49,3 +50,7 @@ class ValidatorMarshmallow(ValidatorABS):
             message,
             location=location
         )
+
+    def get_schema_fields(self):
+        return list(self.schema.fields.keys()) if self.target_name == TargetNameType.PARAMS else []
+

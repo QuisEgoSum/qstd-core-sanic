@@ -19,6 +19,7 @@ openapi = dict(
 )
 handlers = dict()
 override_handlers = dict()
+webhook_handlers = dict()
 
 type_to_type = {
     'str': lambda: {'type': 'string'},
@@ -95,24 +96,46 @@ def collect(app):
     for bg_name in app.blueprints.keys():
         bg = app.blueprints[bg_name]
         for route in bg.routes:
-            url, methods = extract_methods_url(bg, route)
+            webhook_name, methods = extract_methods_url(bg, route)
             for method in methods:
                 method = method.lower()
                 if method == 'options':
                     continue
-                handler = extract_route_handler(route, method, url)
+                handler = extract_route_handler(route, method, webhook_name)
                 openapi_route = get_openapi_from_handler(handler) or OpenapiRoute()
                 if openapi_route.exclude is True:
                     continue
-                openapi_route.resolve_tags(url, bg_name)
+                openapi_route.resolve_tags(webhook_name, bg_name)
                 tags = tags.union(openapi_route.tags)
                 assign_doc(handler.__doc__ or '', openapi_route)
                 if len(openapi_route.responses) == 0:
                     openapi_route.add_response_content(200, OpenapiRouteContent(description='Ok'))
-                if url not in openapi['paths']:
-                    openapi['paths'][url] = {method: openapi_route.to_dict()}
+                if webhook_name not in openapi['paths']:
+                    openapi['paths'][webhook_name] = {method: openapi_route.to_dict()}
                 else:
-                    openapi['paths'][url][method] = openapi_route.to_dict()
+                    openapi['paths'][webhook_name][method] = openapi_route.to_dict()
+    openapi['x-webhooks'] = dict()
+    for method_name, handler in webhook_handlers.items():
+        method, webhook_name = method_name.split('#-#')
+        webhook_name = method + ' ' + webhook_name
+        method = method.lower()
+        openapi_route = get_openapi_from_handler(handler) or OpenapiRoute()
+        if openapi_route.exclude is True:
+            continue
+        tags = tags.union(openapi_route.tags)
+        openapi_route.summary = webhook_name
+        openapi_route.description = ''
+        for line in (handler.__doc__ or '').split('\n'):
+            if line.startswith('    '):
+                line = line.replace('    ', '')
+            openapi_route.description += line + '\n'
+        if len(openapi_route.responses) == 0:
+            openapi_route.add_response_content(200, OpenapiRouteContent(description='Ok'))
+        if webhook_name not in openapi['x-webhooks']:
+            openapi['x-webhooks'][webhook_name] = {method: openapi_route.to_dict()}
+        else:
+            openapi['x-webhooks'][webhook_name][method] = openapi_route.to_dict()
+
     openapi['tags'] = [dict(name=name) for name in tags]
 
 

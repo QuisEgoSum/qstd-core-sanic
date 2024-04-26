@@ -27,7 +27,7 @@ class ValidatorABS(ABC):
     ):
         self.schema = schema
         self.target_name = target_name
-        self.schema_fields = list(self.schema.__fields__.keys()) if target_name == TargetNameType.PARAMS else []
+        self.schema_fields = self.get_schema_fields()
         self.pass_data = pass_data
         self.docs = docs
 
@@ -39,7 +39,7 @@ class ValidatorABS(ABC):
         elif self.target_name == TargetNameType.PARAMS:
             params = dict()
             for name in self.schema_fields:
-                params[name] = kwargs[name]
+                params[name] = kwargs.pop(name)
             return params
 
     def __call__(self, func):
@@ -57,4 +57,7 @@ class ValidatorABS(ABC):
         return wrapper
 
     def validate(self, payload: dict):
+        raise NotImplementedError()
+
+    def get_schema_fields(self):
         raise NotImplementedError()

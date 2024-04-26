@@ -113,10 +113,10 @@ class OpenapiRouteTagOptions:
     excludes: str
 
     def __init__(
-            self,
-            name: str,
-            includes: str = None,
-            excludes: str = None
+        self,
+        name: str,
+        includes: str = None,
+        excludes: str = None
     ):
         self.name = name
         self.includes = includes
@@ -133,6 +133,7 @@ class OpenapiRoute:
     deprecated: bool
     parameters: typing.Set[OpenapiRouteParameter]
     tags_options: typing.List[OpenapiRouteTagOptions]
+    security: dict
 
     def __init__(self):
         self.responses = {}
@@ -144,19 +145,20 @@ class OpenapiRoute:
         self.tags = set()
         self.parameters = set()
         self.tags_options = []
+        self.security = dict()
 
     def add_parameters(
-            self,
-            parameters: typing.List[OpenapiRouteParameter]
+        self,
+        parameters: typing.List[OpenapiRouteParameter]
     ) -> OpenapiRoute:
         self.parameters = self.parameters.union(parameters)
         return self
 
     def add_tag_fabric(
-            self,
-            name: str,
-            includes: str,
-            excludes: str
+        self,
+        name: str,
+        includes: str,
+        excludes: str
     ) -> OpenapiRoute:
         if includes is not None or excludes is not None:
             return self.add_tag_options(name, includes, excludes)
@@ -164,27 +166,27 @@ class OpenapiRoute:
             return self.add_tag(name)
 
     def add_tag(
-            self,
-            name: str
+        self,
+        name: str
     ):
         self.tags.add(name)
         return self
 
     def add_tag_options(
-            self,
-            name: str,
-            includes: str,
-            excludes: str
+        self,
+        name: str,
+        includes: str,
+        excludes: str
     ) -> OpenapiRoute:
         self.tags_options.append(OpenapiRouteTagOptions(name, includes, excludes))
         return self
 
     def add_response_schema(
-            self,
-            status: int,
-            schema: dict,
-            content_type: str,
-            description: str = None
+        self,
+        status: int,
+        schema: dict,
+        content_type: str,
+        description: str = None
     ):
         return self.add_response_content(
             status,
@@ -195,9 +197,9 @@ class OpenapiRoute:
         )
 
     def add_response_content(
-            self,
-            status: int,
-            content: OpenapiRouteContent
+        self,
+        status: int,
+        content: OpenapiRouteContent
     ) -> OpenapiRoute:
         if status not in self.responses:
             self.responses[status] = content
@@ -206,9 +208,9 @@ class OpenapiRoute:
         return self
 
     def add_body_schema(
-            self,
-            content_type: str,
-            schema: dict
+        self,
+        content_type: str,
+        schema: dict
     ) -> OpenapiRoute:
         if self.requestBody is None:
             self.requestBody = OpenapiRouteContent(
@@ -219,8 +221,8 @@ class OpenapiRoute:
         return self
 
     def merge(
-            self,
-            route: OpenapiRoute
+        self,
+        route: OpenapiRoute
     ) -> OpenapiRoute:
         if route.summary:
             self.summary = route.summary
@@ -242,12 +244,18 @@ class OpenapiRoute:
                 self.responses[code] = content
             else:
                 self.responses[code].merge(content)
+        self.security.update(route.security)
         return self
 
+    def add_security(self, name: str, scope: typing.List[str] = None):
+        if scope is None:
+            scope = []
+        self.security[name] = scope
+
     def resolve_tags(
-            self,
-            url: str,
-            default_tag: str
+        self,
+        url: str,
+        default_tag: str
     ) -> OpenapiRoute:
         if len(self.tags) == 0 and len(self.tags_options) == 0:
             self.tags.add(default_tag)
@@ -274,6 +282,10 @@ class OpenapiRoute:
             tags=list(self.tags),
             responses=responses
         )
+        mapped_security = []
+        for key, value in self.security.items():
+            mapped_security.append({key: value})
+        result['security'] = mapped_security
         if self.deprecated is True:
             result['deprecated'] = True
         if len(self.parameters) != 0:

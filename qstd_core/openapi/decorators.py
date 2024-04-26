@@ -4,6 +4,7 @@ from .spec import OpenapiRouteContent, OpenapiRouteParameterEnum
 from .utils import (
     upsert,
     override_handlers,
+    webhook_handlers,
     exception_schema_to_response,
     schema_mapper_factory,
     object_schema_to_parameters,
@@ -118,6 +119,13 @@ def handler(method: str, url: str):
     return inner
 
 
+def webhook(method: str, name: str):
+    def inner(func):
+        webhook_handlers[method + '#-#' + name] = func
+        return func
+    return inner
+
+
 def no_content(status=204):
     def inner(func):
         upsert(func).add_response_content(
@@ -222,5 +230,15 @@ def path(
 
     def inner(func):
         upsert(func).add_parameters(parameters)
+        return func
+    return inner
+
+
+params = path
+
+
+def security(name: str):
+    def inner(func):
+        upsert(func).add_security(name)
         return func
     return inner
