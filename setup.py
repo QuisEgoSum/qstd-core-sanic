@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='qstd_core',
-    version='0.4.0',
+    version='0.5.0',
     author='QuisEgoSum',
     author_email='subbotin.evdokim@gmail.com',
     description='Application core based on sanic',
@@ -20,7 +20,6 @@ setup(
         'sanic>=22.0.0',
         'marshmallow>=3.0.0',
         'pydantic>=1.10.0',
-        'marshmallow_enum',
         'PyYAML',
         'jsonref'
     ],

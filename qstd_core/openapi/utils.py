@@ -1,14 +1,15 @@
+import copy
 import typing
 import enum
 
+import jsonref
 from pydantic import BaseModel
 
 from ..marshmallow import Schema as MarshmallowSchema, List as MarshmallowList
 from .spec import OpenapiRoute, OpenapiRouteParameter, OpenapiRouteParameterEnum, OpenapiRouteContent
 from ..exceptions.localization import LocalizedException
 from ..localization import State
-from .mapper_marsmallow import schema_to_openapi as marshmallow_mapper
-from .mapper_pydantic import schema_to_openapi as pydantic_mapper
+
 
 openapi = dict(
     paths={},
@@ -244,8 +245,8 @@ def path_schema_from_raw_parameters(name, path_type, description=None, enum_cls=
 
 def schema_mapper_factory(schema: typing.Union[MarshmallowSchema, typing.Type[BaseModel]]):
     if isinstance(schema, MarshmallowSchema) or isinstance(schema, MarshmallowList):
-        return marshmallow_mapper(schema)
+        return schema.openapi_schema()
     elif issubclass(schema, BaseModel):
-        return pydantic_mapper(schema)
+        return copy.deepcopy(jsonref.loads(schema.schema_json(), jsonschema=True))
     else:
         return schema

@@ -1,5 +1,4 @@
 marshmallow==3.21.1
-marshmallow_enum==1.5.1
 pydantic==1.10.4
 sanic==23.12.1
 PyYAML==6.0.1
