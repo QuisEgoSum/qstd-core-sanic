@@ -33,9 +33,15 @@ class ValidatorMarshmallow(ValidatorABS):
                                 errors_list.append(self.validation_error(err_text, [str(key), str(i)]))
                         elif isinstance(error_data_object, dict):
                             for field_name, error_data in error_data_object.items():
-                                errors_list.append(
-                                    self.validation_error(','.join(error_data), [str(key), str(i), field_name])
-                                )
+                                # Custom validators
+                                if field_name == '_schema':
+                                    errors_list.append(
+                                        self.validation_error(','.join(error_data), [str(key), str(i)])
+                                    )
+                                else:
+                                    errors_list.append(
+                                        self.validation_error(','.join(error_data), [str(key), str(i), field_name])
+                                    )
                         else:
                             errors_list.append(self.validation_error(str(value), [key]))
                 else:

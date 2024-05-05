@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from ..marshmallow import Schema as MarshmallowSchema, List as MarshmallowList
 from .spec import OpenapiRoute, OpenapiRouteParameter, OpenapiRouteParameterEnum, OpenapiRouteContent
-from ..exceptions.localization import LocalizedException
+from ..exceptions import ApplicationException, LocalizedException
 from ..localization import State
 
 
@@ -170,9 +170,10 @@ def object_schema_to_parameters(
 def exception_schema_to_response(exception):
     if not issubclass(exception, LocalizedException):
         message = {
-            'type': 'string',
-            'default': exception.message
+            'type': 'string'
         }
+        if hasattr(exception, 'message'):
+            message['default'] = exception.message
     else:
         message = {
             'description': exception.localization_key.name,
@@ -219,6 +220,12 @@ def exception_schema_to_response(exception):
             schema['properties'][field] = type_to_type.get(field_type, lambda: {'type': 'object'})()
             if hasattr(exception, field):
                 schema['properties'][field]['default'] = getattr(exception, field)
+            if field_type == 'list':
+                try:
+                    if issubclass(annotation.__args__[0], ApplicationException):
+                        schema['properties'][field]['items'] = exception_schema_to_response(annotation.__args__[0])
+                except:
+                    pass
             if field_type == 'enum':
                 schema['properties'][field]['enum'] = [member.value for member in annotation]
             if is_required:
