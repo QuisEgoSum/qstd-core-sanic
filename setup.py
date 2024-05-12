@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='qstd_core',
-    version='0.5.1',
+    version='0.5.2',
     author='QuisEgoSum',
     author_email='subbotin.evdokim@gmail.com',
     description='Application core based on sanic',

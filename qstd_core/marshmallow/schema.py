@@ -6,8 +6,8 @@ from .fields import Integer, List, Nested, Field
 
 
 class Schema(DefaultSchema):
-    schema_title: str
-    schema_description: str
+    schema_title: typing.Optional[typing.Union[str, Field]]
+    schema_description: typing.Optional[typing.Union[str, Field]]
 
     fields: typing.Dict[str, Field]
 
@@ -24,12 +24,12 @@ class Schema(DefaultSchema):
             properties=dict(),
             required=list()
         )
-        if hasattr(self, 'title'):
-            schema['title'] = self.title
+        if hasattr(self, 'schema_title') and isinstance(self.schema_title, str):
+            schema['title'] = self.schema_title
         else:
             schema['title'] = self.__class__.__name__
-        if hasattr(self, 'schema_description'):
-            schema['properties']['description'] = self.schema_description
+        if hasattr(self, 'schema_description') and isinstance(self.schema_description, str):
+            schema['description'] = self.schema_description
         for field_name in self.fields:
             if self.only and field_name not in self.only:
                 continue
