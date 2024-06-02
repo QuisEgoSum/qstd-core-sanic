@@ -1,3 +1,5 @@
+import typing
+
 from pydantic import BaseModel, ValidationError
 
 from . import TargetNameType
@@ -5,10 +7,13 @@ from .ValidatorABS import ValidatorABS
 from .exceptions import SchemaValidationException
 
 
-class ValidatorPydantic(ValidatorABS):
-    schema: BaseModel
+T = typing.TypeVar('T', bound=BaseModel)
 
-    def validate(self, payload: dict):
+
+class ValidatorPydantic(ValidatorABS, typing.Generic[T]):
+    schema: typing.Type[T]
+
+    def validate(self, payload: dict) -> T:
         try:
             return self.schema.parse_obj(payload)
         except ValidationError as ex:

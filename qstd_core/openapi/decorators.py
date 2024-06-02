@@ -1,5 +1,8 @@
 import typing
 
+from marshmallow import Schema, fields
+from pydantic import BaseModel
+
 from .spec import OpenapiRouteContent, OpenapiRouteParameterEnum
 from .utils import (
     upsert,
@@ -11,7 +14,9 @@ from .utils import (
     path_schema_from_raw_parameters
 )
 from .enum import STATUS_TO_DESCRIPTION
-from ..validator.types import SchemaType
+
+
+SchemaType = typing.Union[Schema, fields.Field, typing.Type[BaseModel]]
 
 
 def response_file(content_type='*/*', status=200, description=None):
@@ -98,7 +103,7 @@ def body_binary(content_type='*/*'):
     return inner
 
 
-def tag(tag_name: str, includes=None, excludes=None):
+def tag(tag_name: str, includes: typing.Optional[str] = None, excludes: typing.Optional[str] = None):
     def inner(func):
         upsert(func).add_tag_fabric(tag_name, includes, excludes)
         return func
@@ -237,8 +242,8 @@ def path(
 params = path
 
 
-def security(name: str):
+def security(name: str, scopes: typing.Optional[typing.List[str]] = None):
     def inner(func):
-        upsert(func).add_security(name)
+        upsert(func).add_security(name, scopes)
         return func
     return inner

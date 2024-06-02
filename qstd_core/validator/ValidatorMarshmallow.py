@@ -8,10 +8,20 @@ from .ValidatorABS import ValidatorABS
 from ..logger import app_core_logger
 
 
-class ValidatorMarshmallow(ValidatorABS):
+TP = typing.TypeVar('TP', bound=dict)
+TR = typing.TypeVar('TR', bound=dict)
+
+
+class ValidatorMarshmallow(ValidatorABS, typing.Generic[TR]):
     schema: Schema
 
-    def validate(self, payload: dict):
+    @typing.overload
+    def validate(self, payload: typing.List[TP]) -> typing.List[TR]: ...
+
+    @typing.overload
+    def validate(self, payload: TP) -> TR: ...
+
+    def validate(self, payload: typing.Union[dict, list]) -> typing.Union[dict, list]:
         try:
             return self.schema.load(payload)
         except ValidationError as ex:

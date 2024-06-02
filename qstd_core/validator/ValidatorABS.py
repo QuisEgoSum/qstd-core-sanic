@@ -56,7 +56,7 @@ class ValidatorABS(ABC):
             getattr(openapi, self.target_name.value)(self.schema)(func)
         return wrapper
 
-    def validate(self, payload: dict):
+    def validate(self, payload: typing.Union[dict, list]) -> typing.Any:
         raise NotImplementedError()
 
     def get_schema_fields(self):

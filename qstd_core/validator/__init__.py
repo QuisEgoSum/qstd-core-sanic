@@ -10,6 +10,29 @@ from .types import SchemaType
 from ..marshmallow import Schema
 
 
+TPM = typing.TypeVar("TPM", bound=BaseModel)
+
+
+@typing.overload
+def validator_factory(
+    *,
+    schema: typing.Type[TPM],
+    target: TargetNameType,
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
+) -> ValidatorPydantic[TPM]: ...
+
+
+@typing.overload
+def validator_factory(
+    *,
+    schema: Schema,
+    target: TargetNameType,
+    pass_data: typing.Optional[bool] = True,
+    docs: typing.Optional[bool] = True
+) -> ValidatorMarshmallow: ...
+
+
 def validator_factory(
     *,
     schema: SchemaType,

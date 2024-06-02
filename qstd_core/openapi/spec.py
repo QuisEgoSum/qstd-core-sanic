@@ -247,10 +247,10 @@ class OpenapiRoute:
         self.security.update(route.security)
         return self
 
-    def add_security(self, name: str, scope: typing.List[str] = None):
-        if scope is None:
-            scope = []
-        self.security[name] = scope
+    def add_security(self, name: str, scopes: typing.List[str] = None):
+        if scopes is None:
+            scopes = []
+        self.security[name] = scopes
 
     def resolve_tags(
         self,
