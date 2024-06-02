@@ -17,11 +17,15 @@ class ValidatorPydantic(ValidatorABS):
     def errors_mapper(self, ex: ValidationError):
         errors_list = []
         for error in ex.errors():
-            loc = error['loc']
+            location = list(*error['loc'])
+            if len(location) != 0:
+                field_name = location[len(location) - 1]
+            else:
+                field_name = ''
             errors_list.append(
                 SchemaValidationException.SchemaValidationItemException(
-                    self.format_error_message(error['msg'], loc[len(loc) - 1]),
-                    location=loc
+                    self.format_error_message(error['msg'], field_name),
+                    location=location
                 )
             )
         return SchemaValidationException(

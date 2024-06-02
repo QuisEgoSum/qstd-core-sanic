@@ -3,7 +3,6 @@ from typing import AnyStr
 
 import typing
 from marshmallow import fields, ValidationError
-from . import validate as c_validate
 
 
 def custom_field_factory(field_cls: typing.Type[fields.Field]):
