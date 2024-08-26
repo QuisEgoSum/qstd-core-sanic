@@ -8,9 +8,9 @@ class SchemaValidationException(BadRequestException):
     class SchemaValidationItemException(BaseApplicationException):
         message: str
         code: int = 2
-        location: typing.List[str]
+        location: typing.List[typing.Union[str, int]]
 
-        def __init__(self, message: str, location: typing.Any):
+        def __init__(self, message: str, location: typing.List[typing.Union[str, int]]):
             super().__init__()
             self.message = message
             self.location = location
@@ -50,4 +50,3 @@ class NotRequestProvidedException(BadRequestException):
             **super().to_dict(),
             target=self.target
         )
-

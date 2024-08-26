@@ -22,7 +22,7 @@ class ValidatorPydantic(ValidatorABS, typing.Generic[T]):
     def errors_mapper(self, ex: ValidationError):
         errors_list = []
         for error in ex.errors():
-            location = list(*error['loc'])
+            location = list(error['loc'])
             if len(location) != 0:
                 field_name = location[len(location) - 1]
             else:
