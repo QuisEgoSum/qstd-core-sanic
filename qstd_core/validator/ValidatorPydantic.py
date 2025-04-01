@@ -40,7 +40,7 @@ class ValidatorPydantic(ValidatorABS, typing.Generic[T]):
 
     @classmethod
     def format_error_message(cls, message: str, field_name: str) -> str:
-        return message.format(field_name=field_name)
+        return message.replace('{field_name}', field_name)
 
     def get_schema_fields(self):
         return list(self.schema.__fields__.keys()) if self.target_name == TargetNameType.PARAMS else []
